@@ -78,8 +78,8 @@ def clean_text(text):
     text = re.sub(r"<book>.*?</book>", "", text, flags=re.DOTALL)
     # 去除多余的分隔符和空行
     text = re.sub(r"={5,}", "", text)
-    # 去掉多余空白字符，保留中文、英文、数字和常见标点
-    text = re.sub(r"[^\u4e00-\u9fa5a-zA-Z0-9，。！？、；：\n]", "", text)
+    # 去掉多余空白字符,英文，保留中文、数字和常见标点
+    text = re.sub(r"[^\u4e00-\u9fa50-9，。！？、；：\n]", "", text)
     # 移除多余的空行
     text = re.sub(r"\n\s*\n", "\n", text).strip()
     return text
@@ -110,7 +110,9 @@ if __name__ == "__main__":
         chapters = extract_chapters(text)
         prescriptions = extract_prescriptions(text)
         
-        all_metadata.append(metadata)
+        if metadata:
+            all_metadata.append(metadata)
+        
         all_chapters.append(chapters)
         all_prescriptions.append(prescriptions)
 

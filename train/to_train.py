@@ -34,19 +34,19 @@ class CustomTextDataset(Dataset):
 
 # 加载清洗后的章节和药方数据
 def load_data():
-    with open('../purse/chapters.json', 'r', encoding='utf-8') as file:
-        chapters_data = json.load(file)
-    with open('../purse/prescriptions.json', 'r', encoding='utf-8') as file:
-        prescriptions_data = json.load(file)
+    # with open('../purse/chapters.json', 'r', encoding='utf-8') as file:
+    #     chapters_data = json.load(file)
+    # with open('../purse/prescriptions.json', 'r', encoding='utf-8') as file:
+    #     prescriptions_data = json.load(file)
     with open('../purse/metadata.json', 'r', encoding='utf-8') as file:
         metadata_data = json.load(file)
-    return chapters_data, prescriptions_data, metadata_data
+    return metadata_data
 
 # 准备训练数据
-chapters_data, prescriptions_data, metadata_data = load_data()
+chapters_data = load_data()
 texts = [content for book in chapters_data for content in book.values()]
-texts += [content for book in prescriptions_data for content in book.values()]
-texts += [content for book in metadata_data for content in book.values()]
+# texts += [content for book in prescriptions_data for content in book.values()]
+# texts += [content for book in metadata_data for content in book.values()]
 
 # 二分类标签示例（0 和 1），根据实际任务设置
 labels = [1] * len(texts)  # 示例标签，可以自行修改
@@ -58,7 +58,7 @@ train_texts, val_texts, train_labels, val_labels = train_test_split(texts, label
 tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
 
 # 对文本进行编码
-def encode_texts(texts, tokenizer, max_length=128):
+def encode_texts(texts, tokenizer, max_length=16):
     return tokenizer(texts, truncation=True, padding='max_length', max_length=max_length, return_tensors='pt')
 
 train_encoded = encode_texts(train_texts, tokenizer)
@@ -74,10 +74,11 @@ model = BertForSequenceClassification.from_pretrained('bert-base-chinese', num_l
 # 设置训练参数
 training_args = TrainingArguments(
     output_dir='./results',
-    num_train_epochs=3,
-    per_device_train_batch_size=4,
+    num_train_epochs=1,
+    per_device_train_batch_size=1,
     evaluation_strategy="epoch",
-    logging_dir='./logs'
+    logging_dir='./logs',
+    logging_steps=50,
 )
 
 # 使用 Trainer API 进行训练
